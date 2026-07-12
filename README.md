@@ -83,6 +83,33 @@ http://localhost:8080
 - Script Path: `Jenkinsfile`
 - Save → Build Now
 
+## Triggering the Pipeline
+
+By default the pipeline runs manually via **Build Now** in the Jenkins UI. In production you would trigger it automatically on every push using one of these two approaches:
+
+**Option 1 — GitHub Webhook (recommended for production)**
+
+Requires Jenkins to be publicly accessible. You can use ngrok for local testing:
+```bash
+ngrok http 8080
+```
+Then in your GitHub repo go to Settings → Webhooks → Add webhook:
+- Payload URL: `https://your-ngrok-url/github-webhook/`
+- Content type: `application/json`
+- Trigger: Just the push event
+
+And in Jenkins pipeline settings enable **GitHub hook trigger for GITScm polling**.
+
+**Option 2 — Poll SCM (no public URL needed)**
+
+Add this to your Jenkinsfile inside the `pipeline` block:
+```groovy
+triggers {
+    pollSCM('* * * * *') 
+}
+```
+Not instant but works without exposing Jenkins publicly — good for local development.
+
 ## Pipeline Environment Variables
 
 Defined at the top of the Jenkinsfile:
